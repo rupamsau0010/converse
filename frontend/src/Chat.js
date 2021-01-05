@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Avatar, IconButton } from "@material-ui/core";
 import "./chat.css";
 import {
@@ -9,8 +9,22 @@ import {
   SearchOutlined,
   SendOutlined,
 } from "@material-ui/icons";
+import axios from "./axios";
 
-const Chat = () => {
+function Chat({ message }) {
+  const [input, setInput] = useState("");
+  const sendMessage = async(e) => {
+    e.preventDefault();
+
+    axios.post("/message/new", {
+      message: input,
+      name: "Rupam",
+      timestamp: "Just now",
+      received: true,
+    });
+
+    setInput("")
+  };
   return (
     <div className="chat">
       <div className="chat_header">
@@ -32,27 +46,26 @@ const Chat = () => {
         </div>
       </div>
       <div className="chat_body">
-        <p className="chat_message">
-          <span className="chat_name">Rupam</span>
-          This is a message
-          <span className="chat_timestamp">{new Date().toUTCString()}</span>
-        </p>
-        <p className="chat_message chat_reciever">
-          <span className="chat_name">Rupam</span>
-          This is a message
-          <span className="chat_timestamp">{new Date().toUTCString()}</span>
-        </p>
-        <p className="chat_message">
-          <span className="chat_name">Rupam</span>
-          This is a message
-          <span className="chat_timestamp">{new Date().toUTCString()}</span>
-        </p>
+        {message.map((messageOne) => (
+          <p
+            className={`chat_message ${messageOne.received && "chat_reciever"}`}
+          >
+            <span className="chat_name">{messageOne.name}</span>
+            {messageOne.message}
+            <span className="chat_timestamp">{messageOne.timestamp}</span>
+          </p>
+        ))}
       </div>
       <div className="chat_footer">
         <InsertEmoticon />
         <form>
-          <input placeholder="Type a message" type="text"></input>
-          <button type="submit">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Type a message"
+            type="text"
+          ></input>
+          <button type="submit" onClick={sendMessage}>
             <IconButton>
               <SendOutlined />
             </IconButton>
@@ -62,6 +75,6 @@ const Chat = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Chat;

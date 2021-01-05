@@ -4,6 +4,7 @@ require("dotenv").config();
 const express = require("express")
 const mongoose = require("mongoose")
 const Pusher = require("pusher")
+const cors = require("cors")
 
 // Import local depandencies
 const Message = require("./Messages")
@@ -22,12 +23,7 @@ const pusher = new Pusher({
 
 // middlewares
 app.use(express.json())
-
-app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*")
-    res.setHeader("Access-Control-Allow-Headers", "*")
-    next()
-})
+app.use(cors())
 
 // Mongodb connect
 const uri = process.env.MONGO_URL
@@ -59,7 +55,9 @@ db.once("open", () => {
             const messageDetails = change.fullDocument
             pusher.trigger("message", "inserted", {
                 name: messageDetails.name,
-                message: messageDetails.message
+                message: messageDetails.message,
+                timestamp: messageDetails.timestamp,
+                received: messageDetails.received
             })
         } else {
             console.log("Error triggering pusher");
