@@ -1,6 +1,7 @@
 // Import depandencies
 require("dotenv").config();
 
+const path = require('path');
 const express = require("express")
 const mongoose = require("mongoose")
 const Pusher = require("pusher")
@@ -65,9 +66,9 @@ db.once("open", () => {
     })
 })
 // API routes
-app.get("/", (req, res) => {
-    res.status(200).send("Hello Node")
-})
+// app.get("/", (req, res) => {
+//     res.status(200).send("Hello Node")
+// })
 
 app.get("/message/sync", (req, res) => {
     Message.find(function(err1, data1){
@@ -90,6 +91,15 @@ app.post("/message/new", (req, res) => {
         }
     })
 })
+
+if(process.env.NODE_ENV === "production") {
+    app.use(express.static(path.join(__dirname, '/frontend/build')))
+    
+} else {
+    app.get("/", (req, res) => {
+        res.send("API is running")
+    })
+}
 
 // App port
 app.listen(port, () => {
